@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="A plain-English guide to preparing a digital knowledge base for LLM retrieval or fine-tuning."
+    />
+    <title>Preparing Knowledge-Base Data for an LLM</title>
+    <style>
+      :root {
+        --ink: #172033;
+        --muted: #526078;
+        --paper: #fff;
+        --canvas: #f3f6fb;
+        --line: #dce4ef;
+        --blue: #2457d6;
+        --blue-soft: #edf3ff;
+        --green-soft: #eaf8f1;
+        --amber-soft: #fff6df;
+        --code: #101827;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--canvas);
+        color: var(--ink);
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.65;
+      }
+
+      main {
+        width: min(100% - 32px, 1000px);
+        margin: 32px auto;
+        padding: clamp(22px, 5vw, 52px);
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        box-shadow: 0 16px 48px rgb(23 32 51 / 7%);
+      }
+
+      h1,
+      h2,
+      h3 {
+        line-height: 1.25;
+      }
+
+      h1 {
+        max-width: 760px;
+        margin: 0 0 16px;
+        font-size: clamp(2rem, 5vw, 3.1rem);
+        letter-spacing: -0.04em;
+      }
+
+      h2 {
+        margin-top: 42px;
+        font-size: clamp(1.45rem, 3vw, 2rem);
+        letter-spacing: -0.025em;
+      }
+
+      h3 {
+        margin-bottom: 8px;
+        font-size: 1.08rem;
+      }
+
+      p,
+      li {
+        color: var(--muted);
+      }
+
+      strong {
+        color: var(--ink);
+      }
+
+      a {
+        color: var(--blue);
+      }
+
+      .eyebrow {
+        margin: 0 0 10px;
+        color: var(--blue);
+        font-size: 0.78rem;
+        font-weight: 750;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .lead {
+        max-width: 780px;
+        font-size: 1.12rem;
+      }
+
+      .answer,
+      .callout {
+        margin: 22px 0;
+        padding: 17px 20px;
+        border-radius: 10px;
+      }
+
+      .answer {
+        background: var(--blue-soft);
+        border-left: 5px solid var(--blue);
+      }
+
+      .answer p,
+      .callout p {
+        margin: 0;
+      }
+
+      .callout.green {
+        background: var(--green-soft);
+      }
+
+      .callout.amber {
+        background: var(--amber-soft);
+      }
+
+      .flow {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 12px;
+        margin: 24px 0;
+      }
+
+      .step {
+        position: relative;
+        min-height: 150px;
+        padding: 16px 14px;
+        background: #f8faff;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+      }
+
+      .step:not(:last-child)::after {
+        position: absolute;
+        top: 50%;
+        right: -12px;
+        z-index: 1;
+        width: 12px;
+        color: var(--blue);
+        content: "›";
+        font-size: 1.5rem;
+        font-weight: 800;
+        line-height: 1;
+      }
+
+      .number {
+        display: inline-grid;
+        width: 27px;
+        height: 27px;
+        place-items: center;
+        margin-bottom: 8px;
+        color: white;
+        background: var(--blue);
+        border-radius: 50%;
+        font-size: 0.84rem;
+        font-weight: 750;
+      }
+
+      .step h3,
+      .step p {
+        margin: 0;
+      }
+
+      .step p {
+        margin-top: 5px;
+        font-size: 0.9rem;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .card {
+        padding: 18px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+      }
+
+      .card p:last-child,
+      .card ul:last-child {
+        margin-bottom: 0;
+      }
+
+      .table-wrap {
+        overflow-x: auto;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        padding: 12px;
+        border-bottom: 1px solid var(--line);
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        color: var(--ink);
+        background: #f8faff;
+      }
+
+      td {
+        color: var(--muted);
+      }
+
+      pre {
+        overflow-x: auto;
+        padding: 18px;
+        color: #e7edf7;
+        background: var(--code);
+        border-radius: 12px;
+        font-size: 0.88rem;
+        line-height: 1.55;
+        tab-size: 2;
+      }
+
+      code {
+        font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      }
+
+      :not(pre) > code {
+        padding: 2px 6px;
+        color: #183b91;
+        background: #edf3ff;
+        border-radius: 5px;
+      }
+
+      footer {
+        margin-top: 42px;
+        padding-top: 18px;
+        border-top: 1px solid var(--line);
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+
+      @media (max-width: 760px) {
+        .flow {
+          grid-template-columns: 1fr;
+        }
+
+        .step {
+          min-height: auto;
+        }
+
+        .step:not(:last-child)::after {
+          top: auto;
+          right: 50%;
+          bottom: -16px;
+          transform: rotate(90deg);
+        }
+
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p class="eyebrow">Plain-English data preparation guide</p>
+      <h1>Preparing your digital knowledge base for an LLM</h1>
+      <p class="lead">
+        Your knowledge base may contain links, video transcripts, personal notes, Google Docs,
+        and Sheets. You can use those materials with an LLM in two different ways: let the model
+        look up relevant material when answering (retrieval), or train a model to follow a
+        particular response style or task (fine-tuning). These approaches need different data.
+      </p>
+
+      <div class="answer">
+        <p>
+          <strong>For most personal knowledge bases, start with retrieval (RAG), not model
+          training.</strong> Organize and index trustworthy source material, find relevant
+          passages for each question, and give those passages to the LLM at answer time.
+          Fine-tuning is usually better for consistent behavior or output format, not for
+          memorizing a changing library of facts.
+        </p>
+      </div>
+
+      <h2>First decide what “training” means</h2>
+      <div class="grid">
+        <section class="card">
+          <h3>Retrieval / RAG: look up your knowledge</h3>
+          <p>
+            Your documents stay in a searchable collection. When you ask something, the system
+            retrieves relevant passages and provides them to the model as context. Update the
+            source collection when your knowledge changes.
+          </p>
+          <p>
+            <strong>Use it for:</strong> answering questions about your notes, citing sources,
+            and working with information that changes over time.
+          </p>
+        </section>
+        <section class="card">
+          <h3>Fine-tuning: teach a repeatable behavior</h3>
+          <p>
+            You prepare many examples of inputs and the ideal outputs, then use a provider's
+            fine-tuning process to adjust a supported model. The examples demonstrate a task,
+            tone, or structure; they are not a reliable, searchable copy of all your documents.
+          </p>
+          <p>
+            <strong>Use it for:</strong> repeated transformations, a specialized response style,
+            or a consistent output pattern after a simpler prompt has been tested.
+          </p>
+        </section>
+      </div>
+
+      <div class="callout amber">
+        <p>
+          <strong>Important:</strong> fine-tuning availability, accepted file format, minimum
+          examples, pricing, and privacy terms depend on the model provider. Check the current
+          provider requirements before preparing a final training file.
+        </p>
+      </div>
+
+      <h2>Two different data pipelines</h2>
+      <div class="flow" aria-label="Five stages to prepare knowledge data">
+        <section class="step">
+          <span class="number">1</span>
+          <h3>Inventory</h3>
+          <p>List sources, owners, permissions, and formats.</p>
+        </section>
+        <section class="step">
+          <span class="number">2</span>
+          <h3>Clean</h3>
+          <p>Extract readable text and remove duplicates or noise.</p>
+        </section>
+        <section class="step">
+          <span class="number">3</span>
+          <h3>Choose</h3>
+          <p>Prepare source passages for retrieval or examples for tuning.</p>
+        </section>
+        <section class="step">
+          <span class="number">4</span>
+          <h3>Check</h3>
+          <p>Review accuracy, coverage, privacy, and source references.</p>
+        </section>
+        <section class="step">
+          <span class="number">5</span>
+          <h3>Evaluate</h3>
+          <p>Test on separate questions before using it for real work.</p>
+        </section>
+      </div>
+
+      <h2>Prepare a knowledge collection for retrieval</h2>
+      <ol>
+        <li>
+          <strong>Keep the original.</strong> Preserve the Google Doc, Sheet, transcript, or
+          source URL. Store a stable link and avoid replacing the source with an AI summary.
+        </li>
+        <li>
+          <strong>Extract readable content.</strong> Export or connect to documents with
+          permission. For video, retain transcript timestamps if available. For spreadsheets,
+          keep column headings and enough row context to make each record understandable.
+        </li>
+        <li>
+          <strong>Add metadata.</strong> Record title, source type, date, topics, owner or
+          permission scope, and a link back to the original.
+        </li>
+        <li>
+          <strong>Split long material into coherent passages.</strong> Use paragraph, section,
+          or topic boundaries. Keep headings with the text they describe; avoid splitting a
+          sentence or table row in half.
+        </li>
+        <li>
+          <strong>Index for search.</strong> A retrieval system may use keyword search, vector
+          search, or both. Each indexed passage should retain its source metadata so answers can
+          cite it.
+        </li>
+        <li>
+          <strong>Retrieve, answer, and cite.</strong> For each question, pass only relevant
+          passages to the LLM and ask it to distinguish supported facts from uncertainty.
+        </li>
+      </ol>
+
+      <h3>Example of a source passage record</h3>
+      <pre><code>{
+  "id": "video-042-chunk-07",
+  "source_title": "Interview about sustainable design",
+  "source_type": "video_transcript",
+  "source_url": "https://example.com/video",
+  "location": "00:12:30-00:14:05",
+  "topics": ["design", "sustainability"],
+  "text": "The speaker explains how repairable parts can extend a product's useful life."
+}</code></pre>
+      <p>
+        The format above is an illustration, not a universal standard. A retrieval system may
+        store passages in a file collection, search index, or database. Keep the text and
+        traceable source information together.
+      </p>
+
+      <h2>Prepare examples for fine-tuning</h2>
+      <p>
+        Fine-tuning examples should show the model what a good response looks like for a
+        particular task. They should be realistic, consistent, and reviewed by a person who
+        knows the subject.
+      </p>
+      <ol>
+        <li>
+          <strong>Define one task.</strong> For example, “turn meeting notes into action items
+          in this exact structure.” Avoid mixing unrelated tasks in one dataset.
+        </li>
+        <li>
+          <strong>Create representative inputs.</strong> Include different writing styles,
+          source lengths, and common edge cases from your real workflow.
+        </li>
+        <li>
+          <strong>Write ideal outputs.</strong> Each output should be correct, useful, and
+          consistent. Include examples where a detail is missing and the right answer is “Not
+          stated.”
+        </li>
+        <li>
+          <strong>Review every pair.</strong> Remove invented facts, unsupported claims,
+          inconsistent labels, duplicates, and private information that should not be used.
+        </li>
+        <li>
+          <strong>Split examples before tuning.</strong> Keep a separate test set that is not
+          used for training so you can measure whether the tuned model generalizes.
+        </li>
+        <li>
+          <strong>Follow the provider's schema.</strong> Many services accept JSON Lines with a
+          conversation per line, but the exact message format and required fields differ.
+        </li>
+      </ol>
+
+      <h3>Illustrative fine-tuning example (JSONL style)</h3>
+      <pre><code>{"messages":[
+  {"role":"system","content":"Extract decisions and action items. Do not guess missing owners or dates."},
+  {"role":"user","content":"Notes: We agreed to publish the guide next week. Sam will review the draft by Thursday."},
+  {"role":"assistant","content":"Decisions:\n- Publish the guide next week.\n\nAction items:\n- Review the draft | Owner: Sam | Due: Thursday"}
+]}
+{"messages":[
+  {"role":"system","content":"Extract decisions and action items. Do not guess missing owners or dates."},
+  {"role":"user","content":"Notes: The team wants to revisit the budget. No owner or date was assigned."},
+  {"role":"assistant","content":"Decisions:\n- Revisit the budget.\n\nAction items:\n- Revisit the budget | Owner: Not stated | Due: Not stated"}
+]}</code></pre>
+      <p>
+        This sample only demonstrates the idea. It is not guaranteed to match a particular
+        provider's fine-tuning schema. Do not upload it until you have checked the provider
+        documentation and removed sensitive content.
+      </p>
+
+      <h2>Do not turn every source into a training example</h2>
+      <div class="grid">
+        <section class="card">
+          <h3>Raw documents are usually retrieval material</h3>
+          <p>
+            A transcript or personal note is a source to search and cite. By itself, it does not
+            tell a training process what response you want the model to produce for a given
+            input.
+          </p>
+        </section>
+        <section class="card">
+          <h3>Training examples need an input and a target</h3>
+          <p>
+            A fine-tuning pair should make the desired behavior explicit: here is an input, and
+            here is the approved answer or transformation. Avoid asking a model to invent
+            “correct” answers from your documents without checking them.
+          </p>
+        </section>
+      </div>
+
+      <h2>Quality, privacy, and source checks</h2>
+      <ul>
+        <li>
+          <strong>Permission:</strong> include only material you have the right to process and
+          use for this purpose. Check licenses, sharing terms, and organizational policies.
+        </li>
+        <li>
+          <strong>Personal data:</strong> remove or mask confidential details that are not
+          necessary. Understand provider retention and training policies before sending data.
+        </li>
+        <li>
+          <strong>Accuracy:</strong> check transcripts, names, figures, dates, and spreadsheet
+          context against the originals. Extraction mistakes can become repeated mistakes.
+        </li>
+        <li>
+          <strong>Duplicates and conflicts:</strong> identify copied notes and outdated versions.
+          Keep dates and version information so newer material does not silently conflict with old.
+        </li>
+        <li>
+          <strong>Untrusted instructions:</strong> a document may contain text that looks like
+          instructions to the model. Treat source content as data, and test that the system does
+          not follow embedded commands.
+        </li>
+        <li>
+          <strong>Traceability:</strong> retain source identifiers and locations so a person can
+          verify where a claim came from.
+        </li>
+      </ul>
+
+      <h2>Evaluate before relying on the result</h2>
+      <p>
+        Create a small set of realistic questions and expected answers. Include questions whose
+        answers are not in your material. Check that the system retrieves the right sources,
+        answers accurately, cites evidence, and says when it does not know.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Check</th>
+              <th>What to look for</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Source coverage</td>
+              <td>Were the relevant notes, transcript sections, or spreadsheet rows found?</td>
+            </tr>
+            <tr>
+              <td>Faithfulness</td>
+              <td>Are claims supported by the source, without invented names, dates, or conclusions?</td>
+            </tr>
+            <tr>
+              <td>Citations</td>
+              <td>Do links, page markers, or timestamps lead to the evidence?</td>
+            </tr>
+            <tr>
+              <td>Unanswerable questions</td>
+              <td>Does the system clearly say when the knowledge base does not contain an answer?</td>
+            </tr>
+            <tr>
+              <td>Consistency</td>
+              <td>Does the output keep the expected structure across different examples?</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>A practical recommendation</h2>
+      <ol>
+        <li>Start with a curated, permission-checked collection of your sources.</li>
+        <li>Build a small retrieval workflow that returns passages with source links.</li>
+        <li>Test it with real questions and improve extraction, metadata, chunking, and prompts.</li>
+        <li>Consider fine-tuning only if you need a consistent behavior that prompting does not reliably achieve.</li>
+        <li>
+          If fine-tuning, prepare reviewed input/output examples for one task and reserve separate
+          evaluation examples.
+        </li>
+      </ol>
+
+      <div class="callout green">
+        <p>
+          <strong>Simple rule:</strong> use retrieval to give the LLM facts from your changing
+          knowledge base; use fine-tuning to teach a repeatable way of handling inputs. They can
+          be combined, but fine-tuning is not a substitute for a searchable, up-to-date library
+          with source citations.
+        </p>
+      </div>
+
+      <footer>
+        <strong>In brief:</strong> organize and clean sources, preserve their provenance, then
+        choose retrieval for knowledge lookup or curated input/output examples for fine-tuning.
+        Evaluate the system and review important outputs before using them.
+      </footer>
+    </main>
+  </body>
+</html>

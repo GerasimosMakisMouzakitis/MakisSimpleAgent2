@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="A plain-English, source-preserving workflow for building a personal knowledge base from links, transcripts, notes, and documents."
+    />
+    <title>A Source-Preserving Personal Knowledge Workflow</title>
+    <style>
+      :root {
+        --ink: #172033;
+        --muted: #526078;
+        --paper: #fff;
+        --canvas: #f3f6fb;
+        --line: #dce4ef;
+        --blue: #2457d6;
+        --blue-soft: #edf3ff;
+        --green-soft: #eaf8f1;
+        --amber-soft: #fff6df;
+        --code: #101827;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--canvas);
+        color: var(--ink);
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.65;
+      }
+
+      main {
+        width: min(100% - 32px, 1000px);
+        margin: 32px auto;
+        padding: clamp(22px, 5vw, 52px);
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        box-shadow: 0 16px 48px rgb(23 32 51 / 7%);
+      }
+
+      h1,
+      h2,
+      h3 {
+        line-height: 1.25;
+      }
+
+      h1 {
+        max-width: 760px;
+        margin: 0 0 16px;
+        font-size: clamp(2rem, 5vw, 3.1rem);
+        letter-spacing: -0.04em;
+      }
+
+      h2 {
+        margin-top: 42px;
+        font-size: clamp(1.45rem, 3vw, 2rem);
+        letter-spacing: -0.025em;
+      }
+
+      h3 {
+        margin-bottom: 8px;
+        font-size: 1.08rem;
+      }
+
+      p,
+      li {
+        color: var(--muted);
+      }
+
+      strong {
+        color: var(--ink);
+      }
+
+      a {
+        color: var(--blue);
+      }
+
+      .eyebrow {
+        margin: 0 0 10px;
+        color: var(--blue);
+        font-size: 0.78rem;
+        font-weight: 750;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .lead {
+        max-width: 780px;
+        font-size: 1.12rem;
+      }
+
+      .answer,
+      .callout {
+        margin: 22px 0;
+        padding: 17px 20px;
+        border-radius: 10px;
+      }
+
+      .answer {
+        background: var(--blue-soft);
+        border-left: 5px solid var(--blue);
+      }
+
+      .answer p,
+      .callout p {
+        margin: 0;
+      }
+
+      .callout.green {
+        background: var(--green-soft);
+      }
+
+      .callout.amber {
+        background: var(--amber-soft);
+      }
+
+      .flow {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 12px;
+        margin: 24px 0;
+      }
+
+      .step {
+        position: relative;
+        min-height: 150px;
+        padding: 16px 14px;
+        background: #f8faff;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+      }
+
+      .step:not(:last-child)::after {
+        position: absolute;
+        top: 50%;
+        right: -12px;
+        z-index: 1;
+        width: 12px;
+        color: var(--blue);
+        content: "›";
+        font-size: 1.5rem;
+        font-weight: 800;
+        line-height: 1;
+      }
+
+      .number {
+        display: inline-grid;
+        width: 27px;
+        height: 27px;
+        place-items: center;
+        margin-bottom: 8px;
+        color: white;
+        background: var(--blue);
+        border-radius: 50%;
+        font-size: 0.84rem;
+        font-weight: 750;
+      }
+
+      .step h3,
+      .step p {
+        margin: 0;
+      }
+
+      .step p {
+        margin-top: 5px;
+        font-size: 0.9rem;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .card {
+        padding: 18px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+      }
+
+      .card p:last-child,
+      .card ul:last-child {
+        margin-bottom: 0;
+      }
+
+      pre {
+        overflow-x: auto;
+        padding: 18px;
+        color: #e7edf7;
+        background: var(--code);
+        border-radius: 12px;
+        font-size: 0.88rem;
+        line-height: 1.55;
+        tab-size: 2;
+      }
+
+      code {
+        font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      }
+
+      :not(pre) > code {
+        padding: 2px 6px;
+        color: #183b91;
+        background: #edf3ff;
+        border-radius: 5px;
+      }
+
+      footer {
+        margin-top: 42px;
+        padding-top: 18px;
+        border-top: 1px solid var(--line);
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+
+      @media (max-width: 760px) {
+        .flow {
+          grid-template-columns: 1fr;
+        }
+
+        .step {
+          min-height: auto;
+        }
+
+        .step:not(:last-child)::after {
+          top: auto;
+          right: 50%;
+          bottom: -16px;
+          transform: rotate(90deg);
+        }
+
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p class="eyebrow">Plain-English personal workflow</p>
+      <h1>A source-preserving personal knowledge workflow</h1>
+      <p class="lead">
+        This guide describes a way to turn links, transcripts, notes, Google Docs, and Sheets
+        into a useful personal knowledge base while keeping the original material intact. The
+        aim is to make your own ideas easier to find and connect—not to create data for training
+        an LLM.
+      </p>
+
+      <div class="answer">
+        <p>
+          <strong>About the Ilya Sutskever attribution:</strong> I could not verify a canonical,
+          publicly documented “Ilya Sutskever workflow” for a personal knowledge base. The
+          process below is a practical source-first workflow, not a claim about his personal
+          method. If you have a specific interview, article, or video in mind, its exact ideas
+          can be compared with this workflow.
+        </p>
+      </div>
+
+      <h2>The main idea: preserve, interpret, connect</h2>
+      <p>
+        Treat the source and your understanding of it as two different things. Keep the original
+        available and unchanged. Write separate notes that say what the source contains, what
+        you think it means, and how it relates to other ideas. When you later write a guide or
+        report, follow those links back to the original evidence.
+      </p>
+
+      <div class="flow" aria-label="Source-preserving personal knowledge workflow">
+        <section class="step">
+          <span class="number">1</span>
+          <h3>Keep</h3>
+          <p>Save the original file or a stable link to it.</p>
+        </section>
+        <section class="step">
+          <span class="number">2</span>
+          <h3>Describe</h3>
+          <p>Record what it is and why it may matter.</p>
+        </section>
+        <section class="step">
+          <span class="number">3</span>
+          <h3>Extract</h3>
+          <p>Capture selected claims, quotes, and locations.</p>
+        </section>
+        <section class="step">
+          <span class="number">4</span>
+          <h3>Connect</h3>
+          <p>Link the source to your own topic or idea notes.</p>
+        </section>
+        <section class="step">
+          <span class="number">5</span>
+          <h3>Create</h3>
+          <p>Write new documents from linked, checked material.</p>
+        </section>
+      </div>
+
+      <h2>Keep three kinds of material separate</h2>
+      <div class="grid">
+        <section class="card">
+          <h3>1. Original source</h3>
+          <p>
+            The video, transcript, Google Doc, Sheet, webpage, or personal note as it was
+            originally captured. Keep its file or stable link, author, date, and access
+            information.
+          </p>
+        </section>
+        <section class="card">
+          <h3>2. Source note</h3>
+          <p>
+            A short record about one source: what it covers, useful passages, exact quotes or
+            transcript timestamps, and your assessment of its reliability. Link back to the
+            original.
+          </p>
+        </section>
+        <section class="card">
+          <h3>3. Your idea or synthesis note</h3>
+          <p>
+            Your own explanation, question, comparison, or conclusion. Link to the supporting
+            source notes, and mark your interpretation as yours rather than as a direct quote.
+          </p>
+        </section>
+        <section class="card">
+          <h3>4. A finished document</h3>
+          <p>
+            A guide, report, or HTML page made for a particular purpose. It can draw on your
+            synthesis notes, but should still point readers (including your future self) to the
+            underlying sources.
+          </p>
+        </section>
+      </div>
+
+      <h2>Step-by-step process</h2>
+      <ol>
+        <li>
+          <strong>Capture without altering.</strong> Save a copy when you have permission, or
+          preserve a stable URL to the source. For Google Docs and Sheets, you can keep the
+          original in Drive and link to it from your knowledge base. If you export a copy, label
+          it as an export and record when it was made.
+        </li>
+        <li>
+          <strong>Add a source record.</strong> Give it a clear title and add the source type,
+          creator, date, URL or file path, date captured, and a few topics.
+        </li>
+        <li>
+          <strong>Write a brief source note.</strong> In your own words, state the subject and
+          why you saved it. Do not try to write a complete summary every time; capture what will
+          help you find and understand it later.
+        </li>
+        <li>
+          <strong>Capture evidence with locations.</strong> Save important quotes, claims, or
+          questions alongside page numbers, headings, sheet names, cell ranges, or video
+          timestamps. Keep quotes clearly marked as quotes.
+        </li>
+        <li>
+          <strong>Write a separate idea note when something matters.</strong> Explain one idea
+          in your own words and link it to the relevant source note or notes. Add a question or
+          counterexample if it helps you think.
+        </li>
+        <li>
+          <strong>Connect related ideas.</strong> Link notes when one supports, challenges, or
+          adds context to another. A link should explain the relationship, not just exist.
+        </li>
+        <li>
+          <strong>Create new documents from the connected notes.</strong> Draft a report or HTML
+          page for a specific reader and purpose. Check key statements against the original
+          source before treating the document as final.
+        </li>
+      </ol>
+
+      <h2>A simple folder and note structure</h2>
+      <p>
+        This can be used in Obsidian or any folder-based Markdown setup. Keep the original
+        wherever it is already managed if moving it would cause confusion; a vault can link to
+        Google Drive instead of copying everything.
+      </p>
+      <pre><code>Knowledge/
+├── Sources/
+│   ├── Videos/
+│   ├── Articles/
+│   ├── Google-Docs/
+│   └── Google-Sheets/
+├── Ideas/
+├── Topics/
+├── Projects/
+└── Outputs/
+    ├── Guides/
+    └── HTML/</code></pre>
+
+      <h3>Example source note</h3>
+      <pre><code>---
+type: source
+title: "Interview about sustainable design"
+source_type: video
+source_url: "https://example.com/interview"
+creator: "Example speaker"
+captured: 2026-10-30
+topics:
+  - design
+  - sustainability
+---
+
+# Interview about sustainable design
+
+## Why I saved this
+It discusses how product repairability affects useful life.
+
+## Useful passages
+- 12:30 — Repairable components can extend product life.
+- 18:05 — The speaker compares repair cost with replacement cost.
+
+## My questions
+- Does this idea apply to the products I am researching?
+
+## Related notes
+- [[Designing for repairability]]</code></pre>
+
+      <h3>Example idea note</h3>
+      <pre><code># Designing for repairability
+
+## Idea
+Repairability can extend useful life when replacement parts and repair instructions
+are available and the repair is practical for the owner.
+
+## Evidence
+- [[Interview about sustainable design]] — 12:30
+- [[Product repair study]] — section "Maintenance costs"
+
+## My current view
+This seems useful, but repair access and total cost need to be considered too.
+
+## Open question
+What evidence compares repair rates across product categories?</code></pre>
+
+      <h2>Handle each source type carefully</h2>
+      <div class="grid">
+        <section class="card">
+          <h3>Links and web pages</h3>
+          <p>
+            Save the URL, page title, author or publisher, access date, and a short note.
+            Websites can change or disappear, so keep a permitted archive or excerpt when you
+            need durable access. Respect copyright and site terms.
+          </p>
+        </section>
+        <section class="card">
+          <h3>Video transcripts</h3>
+          <p>
+            Preserve the original video URL and transcript source. Keep timestamps with quotes
+            or important claims so you can return to the exact moment. Correct obvious
+            transcription errors only in a clearly labeled working copy.
+          </p>
+        </section>
+        <section class="card">
+          <h3>Google Docs</h3>
+          <p>
+            Keep the canonical document in Drive and link to it. Record the title and relevant
+            section headings. If you export a snapshot for offline use, note the export date
+            because the live document may later change.
+          </p>
+        </section>
+        <section class="card">
+          <h3>Google Sheets</h3>
+          <p>
+            Keep the original workbook and refer to sheet names, row ranges, or table headings.
+            When capturing data, retain column names and enough context to understand what each
+            value means. Do not detach numbers from units or dates.
+          </p>
+        </section>
+      </div>
+
+      <h2>Use AI as an assistant, not as the archive</h2>
+      <p>
+        You may use an LLM to draft a source summary or help compare several notes. Keep the
+        original material and your reviewed notes as the durable record. Mark generated text as
+        a draft until you check it.
+      </p>
+      <pre><code>Summarize this source for my personal knowledge base.
+
+Return:
+- A short description of the source
+- Key claims, each with a page, heading, or timestamp
+- Useful exact quotes, clearly marked as quotes
+- Questions or limitations
+
+Do not add facts that are not in the source.
+If you cannot identify a location for a claim, say "Location not identified."
+
+Source:
+{{text or selected passage}}</code></pre>
+      <div class="callout amber">
+        <p>
+          <strong>Review before saving:</strong> check names, numbers, dates, quotes, and
+          timestamps against the original. AI summaries can miss context or introduce errors.
+          Do not send sensitive material to an external service unless its data handling is
+          acceptable to you.
+        </p>
+      </div>
+
+      <h2>Turn notes into a new document</h2>
+      <ol>
+        <li>Write down the reader and purpose: what should this guide help someone do?</li>
+        <li>Select the relevant idea notes, not every item in the vault.</li>
+        <li>Use the notes to make an outline and group related points.</li>
+        <li>Attach source links or locations to factual claims as you draft.</li>
+        <li>Check important claims against the original sources and distinguish evidence from opinion.</li>
+        <li>Save the new document separately and link it back to the notes it used.</li>
+      </ol>
+
+      <div class="callout green">
+        <p>
+          <strong>A useful test:</strong> if you open a sentence in a finished guide months
+          later, can you quickly find the original source and the passage that supports it? If
+          yes, your knowledge base is preserving context rather than just accumulating summaries.
+        </p>
+      </div>
+
+      <h2>Keep the process lightweight</h2>
+      <ul>
+        <li>Do not summarize every source in depth; capture what makes it retrievable and useful.</li>
+        <li>Write idea notes only for concepts you expect to revisit or connect.</li>
+        <li>Use a few consistent fields instead of designing a complicated taxonomy too early.</li>
+        <li>Keep the source link with the note so your archive does not become an island.</li>
+        <li>Review and update your own synthesis when new evidence changes your understanding.</li>
+      </ul>
+
+      <footer>
+        <strong>In brief:</strong> preserve the original, record where it came from, capture
+        evidence with locations, write your interpretation separately, link related ideas, and
+        verify new documents against their sources. This is a personal knowledge workflow, not
+        an LLM training-data process.
+      </footer>
+    </main>
+  </body>
+</html>

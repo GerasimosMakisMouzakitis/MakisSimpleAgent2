@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="A plain-English guide to organizing links, transcripts, notes, Google Docs, and Sheets into a useful digital knowledge vault."
+    />
+    <title>Choosing a System for Your Digital Knowledge Vault</title>
+    <style>
+      :root {
+        --ink: #172033;
+        --muted: #526078;
+        --paper: #fff;
+        --canvas: #f3f6fb;
+        --line: #dce4ef;
+        --blue: #2457d6;
+        --blue-soft: #edf3ff;
+        --green-soft: #eaf8f1;
+        --amber-soft: #fff6df;
+        --code: #101827;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--canvas);
+        color: var(--ink);
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.65;
+      }
+
+      main {
+        width: min(100% - 32px, 1000px);
+        margin: 32px auto;
+        padding: clamp(22px, 5vw, 52px);
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        box-shadow: 0 16px 48px rgb(23 32 51 / 7%);
+      }
+
+      h1,
+      h2,
+      h3 {
+        line-height: 1.25;
+      }
+
+      h1 {
+        max-width: 760px;
+        margin: 0 0 16px;
+        font-size: clamp(2rem, 5vw, 3.1rem);
+        letter-spacing: -0.04em;
+      }
+
+      h2 {
+        margin-top: 42px;
+        font-size: clamp(1.45rem, 3vw, 2rem);
+        letter-spacing: -0.025em;
+      }
+
+      h3 {
+        margin-bottom: 8px;
+        font-size: 1.08rem;
+      }
+
+      p,
+      li {
+        color: var(--muted);
+      }
+
+      strong {
+        color: var(--ink);
+      }
+
+      a {
+        color: var(--blue);
+      }
+
+      .eyebrow {
+        margin: 0 0 10px;
+        color: var(--blue);
+        font-size: 0.78rem;
+        font-weight: 750;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .lead {
+        max-width: 780px;
+        font-size: 1.12rem;
+      }
+
+      .answer,
+      .callout {
+        margin: 22px 0;
+        padding: 17px 20px;
+        border-radius: 10px;
+      }
+
+      .answer {
+        background: var(--blue-soft);
+        border-left: 5px solid var(--blue);
+      }
+
+      .answer p,
+      .callout p {
+        margin: 0;
+      }
+
+      .callout.green {
+        background: var(--green-soft);
+      }
+
+      .callout.amber {
+        background: var(--amber-soft);
+      }
+
+      .flow {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 12px;
+        margin: 24px 0;
+      }
+
+      .step {
+        position: relative;
+        min-height: 150px;
+        padding: 16px 14px;
+        background: #f8faff;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+      }
+
+      .step:not(:last-child)::after {
+        position: absolute;
+        top: 50%;
+        right: -12px;
+        z-index: 1;
+        width: 12px;
+        color: var(--blue);
+        content: "›";
+        font-size: 1.5rem;
+        font-weight: 800;
+        line-height: 1;
+      }
+
+      .number {
+        display: inline-grid;
+        width: 27px;
+        height: 27px;
+        place-items: center;
+        margin-bottom: 8px;
+        color: white;
+        background: var(--blue);
+        border-radius: 50%;
+        font-size: 0.84rem;
+        font-weight: 750;
+      }
+
+      .step h3,
+      .step p {
+        margin: 0;
+      }
+
+      .step p {
+        margin-top: 5px;
+        font-size: 0.9rem;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .card {
+        padding: 18px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+      }
+
+      .card p:last-child,
+      .card ul:last-child {
+        margin-bottom: 0;
+      }
+
+      .table-wrap {
+        overflow-x: auto;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        padding: 12px;
+        border-bottom: 1px solid var(--line);
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        color: var(--ink);
+        background: #f8faff;
+      }
+
+      td {
+        color: var(--muted);
+      }
+
+      pre {
+        overflow-x: auto;
+        padding: 18px;
+        color: #e7edf7;
+        background: var(--code);
+        border-radius: 12px;
+        font-size: 0.88rem;
+        line-height: 1.55;
+        tab-size: 2;
+      }
+
+      code {
+        font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      }
+
+      :not(pre) > code {
+        padding: 2px 6px;
+        color: #183b91;
+        background: #edf3ff;
+        border-radius: 5px;
+      }
+
+      footer {
+        margin-top: 42px;
+        padding-top: 18px;
+        border-top: 1px solid var(--line);
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+
+      @media (max-width: 760px) {
+        .flow {
+          grid-template-columns: 1fr;
+        }
+
+        .step {
+          min-height: auto;
+        }
+
+        .step:not(:last-child)::after {
+          top: auto;
+          right: 50%;
+          bottom: -16px;
+          transform: rotate(90deg);
+        }
+
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p class="eyebrow">Plain-English decision guide</p>
+      <h1>Choosing a system for your digital knowledge vault</h1>
+      <p class="lead">
+        Your material lives in several forms: web links, video transcripts, personal notes,
+        Google Docs, and Google Sheets. The goal is not only to store these sources, but to find
+        connections and turn them into useful new documents or HTML pages without losing where
+        the information came from.
+      </p>
+
+      <div class="answer">
+        <p>
+          <strong>A sensible starting point:</strong> keep original files in their current
+          trusted homes (such as Google Drive), create a curated index and your own synthesis
+          notes in a wiki-like tool such as Obsidian, and use an AI assistant to draft from
+          selected sources. Add a custom app or vector search only after you know what the
+          manual workflow cannot do.
+        </p>
+      </div>
+
+      <h2>Think of it as a pipeline, not one magic product</h2>
+      <div class="flow" aria-label="Knowledge organization and document creation workflow">
+        <section class="step">
+          <span class="number">1</span>
+          <h3>Collect</h3>
+          <p>Keep links, transcripts, Docs, Sheets, and notes findable.</p>
+        </section>
+        <section class="step">
+          <span class="number">2</span>
+          <h3>Describe</h3>
+          <p>Add a title, topic, date, source, and short note about each item.</p>
+        </section>
+        <section class="step">
+          <span class="number">3</span>
+          <h3>Find</h3>
+          <p>Search by words, links, metadata, or meaning as needed.</p>
+        </section>
+        <section class="step">
+          <span class="number">4</span>
+          <h3>Synthesize</h3>
+          <p>Ask an LLM to draft using relevant, selected sources.</p>
+        </section>
+        <section class="step">
+          <span class="number">5</span>
+          <h3>Review and publish</h3>
+          <p>Check citations, edit, then save as a note, Doc, or HTML.</p>
+        </section>
+      </div>
+
+      <h2>Available options</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Option</th>
+              <th>What it does well</th>
+              <th>Limits and trade-offs</th>
+              <th>Best fit</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Google Drive + Docs/Sheets</strong></td>
+              <td>Keeps documents and spreadsheets in familiar formats with sharing and collaboration.</td>
+              <td>Cross-file discovery and building a connected personal wiki may need extra structure or tools.</td>
+              <td>Your sources already live in Google Workspace and collaboration matters.</td>
+            </tr>
+            <tr>
+              <td><strong>AI notebook over selected sources</strong></td>
+              <td>Lets you ask questions and draft summaries grounded in a chosen set of sources, depending on the product and supported formats.</td>
+              <td>Usually not a complete long-term filing system; verify which file types, links, and live updates it supports.</td>
+              <td>Quickly exploring a project or a bundle of source materials without building software.</td>
+            </tr>
+            <tr>
+              <td><strong>Obsidian or another personal wiki</strong></td>
+              <td>Creates durable, linkable notes in a human-readable format; useful for connecting ideas and writing your own synthesis.</td>
+              <td>Importing, syncing, and AI extraction may require manual steps, plugins, or separate services.</td>
+              <td>You want personal control, Markdown notes, and an evolving map of your knowledge.</td>
+            </tr>
+            <tr>
+              <td><strong>Hosted wiki or knowledge base</strong></td>
+              <td>Provides structured pages, categories, collaboration, and often permissions.</td>
+              <td>More platform dependence; migration, AI features, integrations, and data policies vary.</td>
+              <td>A team needs a shared, maintained reference library.</td>
+            </tr>
+            <tr>
+              <td><strong>Custom LLM web app with search</strong></td>
+              <td>Can connect sources, extract text, search across them, cite passages, and generate documents or HTML in a tailored workflow.</td>
+              <td>Requires engineering, source integrations, security, evaluation, monitoring, and ongoing maintenance.</td>
+              <td>You have repeated workflows or scale requirements that existing tools do not meet.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>What does a vector database add?</h2>
+      <p>
+        A vector database stores numerical representations of text (embeddings) and can find
+        passages with similar meaning, even when they do not use the same keywords. For example,
+        a search for “ways to avoid burnout” might find a transcript that says “protecting
+        energy and preventing exhaustion.”
+      </p>
+      <div class="callout amber">
+        <p>
+          <strong>A vector database is a search component, not a complete knowledge system.</strong>
+          It does not automatically connect to Google Drive, understand every file, create a
+          reliable wiki, or guarantee a correct answer. You still need source access, text
+          extraction, permissions, citations, and a way to review generated documents.
+        </p>
+      </div>
+      <ul>
+        <li>
+          Start with normal file organization and full-text search if your collection is modest
+          and keyword search works.
+        </li>
+        <li>
+          Consider vector search when you repeatedly need concept-based retrieval across many
+          documents or transcripts.
+        </li>
+        <li>
+          Consider a hybrid search (keywords plus vectors and metadata filters) when exact names,
+          dates, and semantic concepts all matter.
+        </li>
+      </ul>
+
+      <h2>Keep source material separate from your knowledge and outputs</h2>
+      <p>
+        A healthy vault distinguishes what someone else originally said from your own notes and
+        from AI-generated drafts. That makes corrections, updates, and source checks much easier.
+      </p>
+      <pre><code>Knowledge workspace/
+├── Sources/
+│   ├── Links/
+│   ├── Video-transcripts/
+│   ├── Google-Docs/
+│   └── Google-Sheets/
+├── Notes/
+│   ├── Topics/
+│   └── People-and-projects/
+├── Drafts/
+│   ├── Reports/
+│   └── HTML/
+└── Index/
+    └── Start-here.md</code></pre>
+      <p>
+        This is a conceptual layout; Google Docs and Sheets can remain in Drive. Your index or
+        wiki can store links and descriptions rather than duplicate every source file.
+      </p>
+
+      <h2>Give each source a small amount of structure</h2>
+      <p>
+        Even a lightweight catalog makes later search and AI work more reliable. You can use
+        frontmatter in Markdown, columns in a Sheet, or fields in a wiki.
+      </p>
+      <pre><code>---
+title: "Interview about sustainable design"
+source_type: video_transcript
+source_url: "https://example.com/source"
+date_added: 2026-10-30
+topics:
+  - design
+  - sustainability
+status: reviewed
+---
+
+# Short note
+One or two sentences describing why this source matters.</code></pre>
+      <p>
+        For a Google Sheet, the same idea could be columns for title, source type, URL, date,
+        topics, summary, and review status. Keep source links and access permissions intact.
+      </p>
+
+      <h2>How AI can help create new documents</h2>
+      <ol>
+        <li>
+          Choose a question or deliverable, such as “Create a short guide to the ideas I collected
+          about sustainable design.”
+        </li>
+        <li>
+          Find the relevant notes and sources. Do not send the entire vault if only a few sources
+          are needed.
+        </li>
+        <li>
+          Ask the model to draft a specific structure and distinguish source facts from your
+          conclusions.
+        </li>
+        <li>
+          Require links or citations for important claims, ideally pointing to the original
+          document and a relevant page, section, or transcript timestamp.
+        </li>
+        <li>
+          Review the draft against the sources, correct mistakes, and save it as a new document
+          or HTML page.
+        </li>
+        <li>
+          Record which sources and prompt produced the draft so it can be refreshed later.
+        </li>
+      </ol>
+
+      <h3>Example prompt</h3>
+      <pre><code>Create a plain-English HTML guide about [topic] using only the source notes below.
+
+Requirements:
+- Organize it with a short introduction, key ideas, practical steps, and open questions.
+- Cite each important claim with the supplied source title and link.
+- Separate what the sources say from any synthesis or recommendation.
+- If the sources disagree or do not answer something, say so.
+- Do not invent facts, quotations, links, or citations.
+
+Source notes:
+{{selected notes and source links}}</code></pre>
+
+      <h2>Choosing a path for your situation</h2>
+      <div class="grid">
+        <section class="card">
+          <h3>If this is mainly for you</h3>
+          <p>
+            Keep originals in Drive, make a simple catalog, and build topic notes in Obsidian or
+            another Markdown wiki. Use AI on selected sources, then save reviewed output back as
+            linked notes or HTML.
+          </p>
+        </section>
+        <section class="card">
+          <h3>If you already work mostly in Google</h3>
+          <p>
+            Start with Drive folders and a catalog Sheet, then use an AI feature that can access
+            the specific sources you choose. Confirm format support and data access before
+            relying on it for Docs, Sheets, or external links.
+          </p>
+        </section>
+        <section class="card">
+          <h3>If a team needs a shared reference</h3>
+          <p>
+            Consider a collaborative wiki or knowledge base with clear owners, review dates,
+            permissions, and a publishing process. AI drafts can help, but somebody should own
+            keeping canonical pages current.
+          </p>
+        </section>
+        <section class="card">
+          <h3>If you need a tailored automated product</h3>
+          <p>
+            Build a custom app only after defining source connectors, user access, output formats,
+            citations, and quality checks. Add vector search if semantic retrieval is a proven
+            need, not simply because the app uses an LLM.
+          </p>
+        </section>
+      </div>
+
+      <h2>A low-risk plan to get started</h2>
+      <ol>
+        <li>Pick one topic and gather 10–20 representative sources from your vault.</li>
+        <li>Create a catalog with a stable title, source link, type, topic, and short description.</li>
+        <li>Write a topic note that links to those sources and captures your own understanding.</li>
+        <li>Use an AI assistant to draft one document from only those sources.</li>
+        <li>Check every important claim and link; save the reviewed version as a new file.</li>
+        <li>
+          Note what was difficult: finding sources, importing content, citations, or formatting.
+          Let that evidence determine what you automate next.
+        </li>
+      </ol>
+
+      <div class="callout green">
+        <p>
+          <strong>Recommendation:</strong> start with a hybrid personal wiki plus your existing
+          Google Drive, not a custom app or vector database. Keep source files where they are,
+          build a curated index and connected notes, and use an LLM as a drafting assistant with
+          source links. Upgrade to automation or semantic search when you can point to a specific
+          recurring pain that the simpler setup does not solve.
+        </p>
+      </div>
+
+      <h2>Questions to answer before choosing</h2>
+      <ul>
+        <li>Is this only for you, or will other people need access and editing rights?</li>
+        <li>Should original files stay in Google Drive, or do you want local Markdown copies?</li>
+        <li>Do you need answers with source citations, or mainly a place to write and connect ideas?</li>
+        <li>How often should changes in Docs and Sheets be reflected in your knowledge notes?</li>
+        <li>Can private or personal material be sent to a cloud AI provider?</li>
+        <li>Who will review AI-created content and keep the final documents up to date?</li>
+      </ul>
+
+      <footer>
+        <strong>In brief:</strong> choose a wiki for organizing and connecting knowledge, an AI
+        assistant for drafting from sources, and a vector database only when semantic search is
+        needed at meaningful scale. Keep originals, citations, and human review in the workflow.
+      </footer>
+    </main>
+  </body>
+</html>

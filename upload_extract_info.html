@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Uploading a Text File and Saving Extracted Information</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        margin: 0;
+        background: #f5f7fb;
+        color: #1f2937;
+      }
+      .container {
+        max-width: 900px;
+        margin: 40px auto;
+        background: #ffffff;
+        padding: 30px 40px;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+      }
+      h1, h2 {
+        color: #111827;
+      }
+      .step {
+        background: #eef6ff;
+        border-left: 5px solid #2563eb;
+        padding: 16px 18px;
+        margin: 18px 0;
+        border-radius: 8px;
+      }
+      code {
+        background: #f3f4f6;
+        padding: 2px 6px;
+        border-radius: 4px;
+      }
+      ul {
+        padding-left: 20px;
+      }
+      .example-box {
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        padding: 18px;
+        border-radius: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>How to Upload a Text File and Save the Extracted Information</h1>
+
+      <p>
+        In plain English, this process is simple: you upload a text file, read its contents,
+        pick out the important information, and save that information in a separate file so you
+        can use it later.
+      </p>
+
+      <div class="step">
+        <h2>1. Upload the file</h2>
+        <p>
+          First, the user chooses a file from their computer, such as a <code>.txt</code> file.
+          The application opens the file and reads the content inside it.
+        </p>
+      </div>
+
+      <div class="step">
+        <h2>2. Read the content</h2>
+        <p>
+          Once the file is chosen, the program reads the text line by line. It may look for headings,
+          dates, names, summaries, tasks, or other useful details. In many cases, this step is just
+          extracting the raw text from the file.
+        </p>
+      </div>
+
+      <div class="step">
+        <h2>3. Extract the important information</h2>
+        <p>
+          The program then decides what matters. For example, if the file is a meeting note, it may
+          pull out the date, owner, topic, summary, and action items. If it is a report, it may pull
+          out the title, key facts, and conclusions.
+        </p>
+        <p>
+          This is the part where the useful information is separated from the rest of the text.
+        </p>
+      </div>
+
+      <div class="step">
+        <h2>4. Save it in a separate file</h2>
+        <p>
+          After extracting the key details, the system writes them into a new file. A common choice is
+          a Markdown file, such as <code>.md</code>, because it is easy to read and easy to reuse later.
+        </p>
+        <p>
+          The new file can be used as a clean summary, a note, a report, or a starting point for other
+          work.
+        </p>
+      </div>
+
+      <div class="step">
+        <h2>5. Use it later</h2>
+        <p>
+          Later, you can open the Markdown file and quickly review the extracted information without
+          reopening the original file. This makes it easier to search, share, or build on the content.
+        </p>
+      </div>
+
+      <h2>Simple Example</h2>
+      <div class="example-box">
+        <p><strong>Original file:</strong> a text file with meeting notes</p>
+        <p><strong>Extracted information:</strong> date, person in charge, topic, summary, action items</p>
+        <p><strong>Saved file:</strong> a Markdown file named <code>extracted_info.md</code></p>
+      </div>
+
+      <h2>Example of the saved Markdown file</h2>
+      <pre><code># Extracted Information
+
+- Date: 2026-10-30
+- Owner: Alex
+- Topic: Launch plan for the new product
+
+## Summary
+The team agreed to start the launch plan next week.
+
+## Action Items
+1. Update the landing page copy.
+2. Test the signup form.</code></pre>
+
+      <p>
+        In short, the process is: upload text → read it → extract the useful details → save them in a
+        separate Markdown file → use that file later when needed.
+      </p>
+    </div>
+  </body>
+</html>

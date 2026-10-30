@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="A plain-English guide to uploading files into AlloyDB and optionally adding vector search."
+    />
+    <title>Uploading Files to AlloyDB: A Practical Guide</title>
+    <style>
+      :root {
+        --ink: #172033;
+        --muted: #526078;
+        --paper: #fff;
+        --canvas: #f3f6fb;
+        --line: #dce4ef;
+        --blue: #2457d6;
+        --blue-soft: #edf3ff;
+        --green-soft: #eaf8f1;
+        --amber-soft: #fff6df;
+        --code: #101827;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--canvas);
+        color: var(--ink);
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.65;
+      }
+
+      main {
+        width: min(100% - 32px, 1000px);
+        margin: 32px auto;
+        padding: clamp(22px, 5vw, 52px);
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        box-shadow: 0 16px 48px rgb(23 32 51 / 7%);
+      }
+
+      h1,
+      h2,
+      h3 {
+        line-height: 1.25;
+      }
+
+      h1 {
+        max-width: 760px;
+        margin: 0 0 16px;
+        font-size: clamp(2rem, 5vw, 3.1rem);
+        letter-spacing: -0.04em;
+      }
+
+      h2 {
+        margin-top: 42px;
+        font-size: clamp(1.45rem, 3vw, 2rem);
+        letter-spacing: -0.025em;
+      }
+
+      h3 {
+        margin-bottom: 8px;
+        font-size: 1.08rem;
+      }
+
+      p,
+      li {
+        color: var(--muted);
+      }
+
+      strong {
+        color: var(--ink);
+      }
+
+      a {
+        color: var(--blue);
+      }
+
+      .eyebrow {
+        margin: 0 0 10px;
+        color: var(--blue);
+        font-size: 0.78rem;
+        font-weight: 750;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .lead {
+        max-width: 780px;
+        font-size: 1.12rem;
+      }
+
+      .answer,
+      .callout {
+        margin: 22px 0;
+        padding: 17px 20px;
+        border-radius: 10px;
+      }
+
+      .answer {
+        background: var(--blue-soft);
+        border-left: 5px solid var(--blue);
+      }
+
+      .answer p,
+      .callout p {
+        margin: 0;
+      }
+
+      .callout.green {
+        background: var(--green-soft);
+      }
+
+      .callout.amber {
+        background: var(--amber-soft);
+      }
+
+      .flow {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 12px;
+        margin: 24px 0;
+      }
+
+      .step {
+        position: relative;
+        min-height: 150px;
+        padding: 16px 14px;
+        background: #f8faff;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+      }
+
+      .step:not(:last-child)::after {
+        position: absolute;
+        top: 50%;
+        right: -12px;
+        z-index: 1;
+        width: 12px;
+        color: var(--blue);
+        content: "›";
+        font-size: 1.5rem;
+        font-weight: 800;
+        line-height: 1;
+      }
+
+      .number {
+        display: inline-grid;
+        width: 27px;
+        height: 27px;
+        place-items: center;
+        margin-bottom: 8px;
+        color: white;
+        background: var(--blue);
+        border-radius: 50%;
+        font-size: 0.84rem;
+        font-weight: 750;
+      }
+
+      .step h3,
+      .step p {
+        margin: 0;
+      }
+
+      .step p {
+        margin-top: 5px;
+        font-size: 0.9rem;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .card {
+        padding: 18px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+      }
+
+      .card p:last-child,
+      .card ul:last-child {
+        margin-bottom: 0;
+      }
+
+      .table-wrap {
+        overflow-x: auto;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        padding: 12px;
+        border-bottom: 1px solid var(--line);
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        color: var(--ink);
+        background: #f8faff;
+      }
+
+      td {
+        color: var(--muted);
+      }
+
+      pre {
+        overflow-x: auto;
+        padding: 18px;
+        color: #e7edf7;
+        background: var(--code);
+        border-radius: 12px;
+        font-size: 0.88rem;
+        line-height: 1.55;
+        tab-size: 2;
+      }
+
+      code {
+        font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      }
+
+      :not(pre) > code {
+        padding: 2px 6px;
+        color: #183b91;
+        background: #edf3ff;
+        border-radius: 5px;
+      }
+
+      footer {
+        margin-top: 42px;
+        padding-top: 18px;
+        border-top: 1px solid var(--line);
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+
+      @media (max-width: 760px) {
+        .flow {
+          grid-template-columns: 1fr;
+        }
+
+        .step {
+          min-height: auto;
+        }
+
+        .step:not(:last-child)::after {
+          top: auto;
+          right: 50%;
+          bottom: -16px;
+          transform: rotate(90deg);
+        }
+
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p class="eyebrow">Plain-English database guide</p>
+      <h1>Uploading a file to AlloyDB</h1>
+      <p class="lead">
+        A file is not usually “converted into AlloyDB” in one step. Your application receives
+        the file, extracts the information you want, and saves that information as database
+        rows. Optionally, it can also create vector embeddings so people can search by meaning.
+      </p>
+
+      <div class="answer">
+        <p>
+          <strong>Is AlloyDB a vector database?</strong> Not exactly. AlloyDB for PostgreSQL is
+          a managed, PostgreSQL-compatible relational database. It can store vectors and perform
+          vector similarity searches using its <code>vector</code> (pgvector-based) and
+          <code>alloydb_scann</code> extensions. A useful description is
+          <strong>a relational database with vector-search capabilities</strong>, rather than a
+          vector-only database.
+        </p>
+      </div>
+
+      <h2>The file-to-database process</h2>
+      <div class="flow" aria-label="File ingestion process into AlloyDB">
+        <section class="step">
+          <span class="number">1</span>
+          <h3>Upload</h3>
+          <p>A web app sends the file to your backend service.</p>
+        </section>
+        <section class="step">
+          <span class="number">2</span>
+          <h3>Extract</h3>
+          <p>The backend reads the text or uses a parser for the file format.</p>
+        </section>
+        <section class="step">
+          <span class="number">3</span>
+          <h3>Prepare</h3>
+          <p>Clean, split, and optionally summarize the content.</p>
+        </section>
+        <section class="step">
+          <span class="number">4</span>
+          <h3>Save</h3>
+          <p>Insert document details and text chunks into AlloyDB.</p>
+        </section>
+        <section class="step">
+          <span class="number">5</span>
+          <h3>Search</h3>
+          <p>Use SQL filters, full-text search, or optional vector search.</p>
+        </section>
+      </div>
+
+      <h2>What should go into the database?</h2>
+      <div class="grid">
+        <section class="card">
+          <h3>Document information</h3>
+          <p>
+            Save fields such as the filename, upload time, owner, content type, and processing
+            status. These are ordinary relational columns and work well with SQL filters.
+          </p>
+        </section>
+        <section class="card">
+          <h3>Extracted text</h3>
+          <p>
+            Store the text itself, often as one or more chunks. Chunking makes long documents
+            easier to process, update, and retrieve. Keep a document ID and chunk order so you
+            can relate every piece back to its source.
+          </p>
+        </section>
+        <section class="card">
+          <h3>Original file</h3>
+          <p>
+            For many applications, keep the original file in object storage (for example,
+            Google Cloud Storage) and save its object path in AlloyDB. Store file bytes in the
+            database only when that is an intentional requirement.
+          </p>
+        </section>
+        <section class="card">
+          <h3>Optional embeddings</h3>
+          <p>
+            An embedding is a list of numbers produced by an embedding model from text. Store
+            one for each chunk if you want semantic search. It is not the text itself and does
+            not replace storing the source text.
+          </p>
+        </section>
+      </div>
+
+      <h2>Two common designs</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Design</th>
+              <th>What you store</th>
+              <th>How you search</th>
+              <th>Best starting point when…</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Structured text storage</strong></td>
+              <td>Document metadata, extracted text, and optionally summaries.</td>
+              <td>SQL filters, exact matches, or PostgreSQL full-text search.</td>
+              <td>You need a searchable archive or structured records, not “similar meaning” search.</td>
+            </tr>
+            <tr>
+              <td><strong>Text plus vector search</strong></td>
+              <td>The same data, plus a vector embedding for each text chunk.</td>
+              <td>Nearest-neighbor similarity search, optionally combined with SQL filters.</td>
+              <td>Users ask natural-language questions or search for concepts with different wording.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout green">
+        <p>
+          <strong>You do not need vectors just to upload files.</strong> If you only need to
+          preserve text, filter by metadata, or query known fields, use regular relational
+          columns and PostgreSQL search first. Add embeddings when semantic similarity provides
+          a real benefit.
+        </p>
+      </div>
+
+      <h2>Example database shape</h2>
+      <p>
+        This is an illustrative schema, not a complete production migration. The exact vector
+        dimension depends on the embedding model you choose; confirm it before creating a
+        dimension-specific column or index.
+      </p>
+      <pre><code>CREATE TABLE documents (
+  id          bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  filename    text NOT NULL,
+  uploaded_at timestamptz NOT NULL DEFAULT now(),
+  object_uri  text,
+  status      text NOT NULL DEFAULT 'processing'
+);
+
+CREATE TABLE document_chunks (
+  id           bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  document_id  bigint NOT NULL REFERENCES documents(id) ON DELETE CASCADE,
+  chunk_number integer NOT NULL,
+  content      text NOT NULL,
+  -- Optional: add an embedding column for semantic search.
+  UNIQUE (document_id, chunk_number)
+);</code></pre>
+      <p>
+        When adding vector search, enable the AlloyDB <code>vector</code> extension and add a
+        vector column compatible with your chosen embedding model. AlloyDB also offers the
+        <code>alloydb_scann</code> extension for efficient nearest-neighbor indexes. Follow
+        the current AlloyDB documentation for supported versions, index configuration, and
+        query operators.
+      </p>
+
+      <h2>Where embeddings fit</h2>
+      <ol>
+        <li>Split the extracted text into useful chunks, such as paragraphs or transcript sections.</li>
+        <li>Send each chunk to an embedding model to produce its vector.</li>
+        <li>Save the chunk text, its document ID, metadata, and vector in AlloyDB.</li>
+        <li>Create a suitable vector index if needed for your data size and latency requirements.</li>
+        <li>For a user query, embed the query using the compatible model and search for nearby vectors.</li>
+        <li>Return the matching text chunks and their source details to the application.</li>
+      </ol>
+      <p>
+        AlloyDB AI can integrate with supported model endpoints and provide SQL functions for
+        generating embeddings. You can also generate embeddings in your application or another
+        service and write the resulting vectors to AlloyDB. Those are different deployment
+        choices; model availability, IAM, extension setup, and permissions need to be configured.
+      </p>
+
+      <h2>Upload code: browser versus backend</h2>
+      <p>
+        The browser should send the file to your application server. The server validates and
+        parses it, then writes rows to AlloyDB using a database driver and parameterized SQL.
+        Do not put database passwords or cloud credentials in browser JavaScript.
+      </p>
+      <pre><code>// Browser-side outline: send a file to your backend, not directly to AlloyDB.
+const formData = new FormData();
+formData.append("file", selectedFile);
+
+const response = await fetch("/api/documents", {
+  method: "POST",
+  body: formData
+});
+
+if (!response.ok) {
+  throw new Error(`Upload failed: ${response.status}`);
+}
+
+const result = await response.json();
+console.log("Document processing started:", result.documentId);</code></pre>
+      <p>
+        The endpoint shown here is illustrative. A typical backend flow is:
+        <code>validate upload → store original if required → extract text → write document and
+        chunk rows → optionally generate and store embeddings → report success or failure</code>.
+        For large files, background jobs can keep the upload request responsive and allow retries.
+      </p>
+
+      <h2>Important design choices</h2>
+      <div class="grid">
+        <section class="card">
+          <h3>Text extraction</h3>
+          <p>
+            Plain text can be read directly. PDFs, Word documents, scanned images, and audio
+            require appropriate parsers or transcription. Check extraction quality before
+            trusting the database content.
+          </p>
+        </section>
+        <section class="card">
+          <h3>Chunk size and overlap</h3>
+          <p>
+            A whole book may be too large for one model request or one useful search result.
+            Use chunks that retain enough context, and consider a small overlap when splitting
+            continuous text so facts are not cut at boundaries.
+          </p>
+        </section>
+        <section class="card">
+          <h3>Permissions and privacy</h3>
+          <p>
+            Decide who can upload, read, and delete each document. Restrict database access,
+            validate file size and type, and establish retention rules for both original files
+            and extracted text.
+          </p>
+        </section>
+        <section class="card">
+          <h3>Processing errors</h3>
+          <p>
+            Track states such as <code>processing</code>, <code>ready</code>, and
+            <code>failed</code>. Record useful error details, make retries safe, and avoid
+            showing a successful upload when extraction or database insertion failed.
+          </p>
+        </section>
+      </div>
+
+      <h2>Suggested first version</h2>
+      <ol>
+        <li>Accept one supported format, such as plain text, and enforce a reasonable upload limit.</li>
+        <li>Extract the text on the server and save the filename, text, and upload time in AlloyDB.</li>
+        <li>Display the saved document and confirm it can be retrieved using SQL.</li>
+        <li>Add chunking if files are large or you need passage-level results.</li>
+        <li>Add embeddings and vector indexes only when semantic search is a requirement.</li>
+      </ol>
+
+      <h2>Official reading</h2>
+      <ul>
+        <li>
+          <a href="https://docs.cloud.google.com/alloydb/docs/ai">
+            AlloyDB AI overview
+          </a>
+          — vector and AI capabilities available in AlloyDB.
+        </li>
+        <li>
+          <a href="https://docs.cloud.google.com/alloydb/docs/ai/work-with-embeddings">
+            Work with embeddings
+          </a>
+          — generating embeddings using AlloyDB AI.
+        </li>
+        <li>
+          <a href="https://docs.cloud.google.com/alloydb/docs/ai/run-vector-similarity-search">
+            Run vector similarity searches
+          </a>
+          — querying stored embeddings with vector operators.
+        </li>
+      </ul>
+
+      <footer>
+        <strong>In brief:</strong> AlloyDB is relational PostgreSQL-compatible storage that can
+        also do vector search. Upload files through your backend, extract and store their useful
+        contents as rows, and add embeddings only if you need meaning-based search.
+      </footer>
+    </main>
+  </body>
+</html>
